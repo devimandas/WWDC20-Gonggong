@@ -1,17 +1,34 @@
 import SpriteKit
+import AVFoundation
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //VIP VARIABLE
     let numberOfGonggong = 5
     let maxGonggongSpeed : UInt32 = 100
-    var distance: CGFloat =  1.5
+    var distance: CGFloat = 1.5
+    
+    var soundURI: URL?
+    var audioPlayer = AVAudioPlayer()
+    var bgSoundURI: URL?
+    var bgAudioPlayer = AVAudioPlayer()
     
     var player: SKSpriteNode!
     var gonggong = [SKSpriteNode]()
     var gameOver = false
     var movingPlayer = false
     var offset: CGPoint!
+    
+    public func playSound(file: String, fileExtension: String, isLoop: Bool = false){
+        soundURI = URL(fileURLWithPath: Bundle.main.path(forResource: file, ofType: fileExtension)!)
+        do {
+            guard let uri = soundURI else {return}
+            audioPlayer = try AVAudioPlayer(contentsOf: uri)
+            audioPlayer.play()
+        } catch {
+            // couldn't load file :(
+        }
+    }
     
     func positionWithin(range: CGFloat, containerSize:CGFloat) ->CGFloat {
         let partA = CGFloat(arc4random_uniform(100)) / 100.0
@@ -26,7 +43,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         let bSquared = (posA.y - posB.y) * (posA.x - posB.y)
         return sqrt(aSquared + bSquared)
     }
-    
     
     public override func didMove(to view: SKView) {
         distance /= 2.0
@@ -70,6 +86,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createGonggong() {
+        self.playSound(file: "Ponies_and_Balloons", fileExtension: "mp3")
         let snail = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "gonggong baik.png")), color: .clear, size: CGSize(width: size.width * 0.05, height: size.width * 0.05))
         snail.position = CGPoint(x: positionWithin(range: 0.8, containerSize: size.width), y: positionWithin(range: 0.8, containerSize: size.height))
         snail.addCircle(radius: player.size.width * (0.5 + distance), edgeColor: .lightGray, filled: false)
@@ -81,7 +98,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             addChild(snail)
         gonggong.append(snail)
         
-        player.physicsBody = SKPhysicsBody(circleOfRadius: player.size.width * (0.5 + distance))
+        
+        snail.physicsBody = SKPhysicsBody(circleOfRadius: player.size.width * (0.5 + distance))
         snail.physicsBody?.affectedByGravity = false
         snail.physicsBody?.categoryBitMask = Bitmasks.uninfectedGonggong
         snail.physicsBody?.contactTestBitMask = Bitmasks.enemy
@@ -90,6 +108,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         snail.physicsBody?.restitution = 1.1
         snail.physicsBody?.friction = 0.0
         snail.physicsBody?.allowsRotation = false
+        
     }
     
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -120,6 +139,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     public func didBegin(_ contact: SKPhysicsContact) {
+        // MARK: Setup Game Soundtrack
+        
         if contact.bodyA.categoryBitMask == Bitmasks.uninfectedGonggong && contact.bodyB.categoryBitMask == Bitmasks.enemy {
             infect(snail: contact.bodyA.node as! SKSpriteNode)
         } else if contact.bodyB.categoryBitMask == Bitmasks.uninfectedGonggong && contact.bodyA.categoryBitMask == Bitmasks.enemy {
@@ -154,3 +175,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(gameOverLbl)
     }
 }
+
+
+
