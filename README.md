@@ -19,4 +19,4 @@ So that users as healthy Gonggong must avoid Gonggong that has been poisoned, if
 
 ## Third Party Resource Used
 Background music: Ponies and Balloons by The Green Orbs from the Youtube Audio Library.
-Icon: in part the icons in this game come from Flaticon, and I try to modified.
+Icon: in part the icons in this game come from Flaticon, and I try to modified. Credit this code and inspired by Yuma, https://www.youtube.com/watch?v=kwtIMRkxxaA&t=73s
